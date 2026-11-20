@@ -9,18 +9,18 @@ export function Bow({className=''}:{className?:string}) { return <img className=
 function LightParticles() {return <div className="light-particles" aria-hidden="true">{Array.from({length:22},(_,i)=><i key={i} style={{left:`${(i*37+13)%100}%`,top:`${(i*23+11)%100}%`,animationDelay:`${i*-.47}s`,animationDuration:`${4+i%4}s`}}/>)}</div>}
 
 export function Invitation({c,preview=false}:{c:Config;preview?:boolean}) {
-  const [opened,setOpened]=useState(preview||sessionStorage.getItem('blessing-open-v2')==='yes');
+  const [opened,setOpened]=useState(preview);
   const [opening,setOpening]=useState(false),[menu,setMenu]=useState(false),[rsvp,setRsvp]=useState(false);
   const [lightbox,setLightbox]=useState<number|null>(null),[galleryIndex,setGalleryIndex]=useState(0),[playing,setPlaying]=useState(false);
   const audio=useRef<HTMLAudioElement>(null),timer=useRef<ReturnType<typeof setTimeout>|null>(null);
-  const finish=()=>{setOpened(true);setOpening(false);sessionStorage.setItem('blessing-open-v2','yes')};
+  const finish=()=>{setOpened(true);setOpening(false)};
   const open=()=>{if(opening)return;if(c.music)audio.current?.play().then(()=>setPlaying(true)).catch(()=>{});if(c.animationEnabled===false||matchMedia('(prefers-reduced-motion: reduce)').matches){finish();return}setOpening(true);timer.current=setTimeout(finish,(c.animationDuration??5)*1000)};
   useEffect(()=>()=>{if(timer.current)clearTimeout(timer.current)},[]);
   useEffect(()=>{if(opened&&!preview)document.getElementById('invitation-title')?.focus({preventScroll:true})},[opened,preview]);
   useEffect(()=>{const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target)}}),{threshold:.08});document.querySelectorAll('.reveal-on-scroll').forEach(el=>observer.observe(el));return()=>observer.disconnect()},[opened]);
   const date=c.date?new Date(c.date):null,validDate=date&&!isNaN(date.getTime());
   const format=(options:Intl.DateTimeFormatOptions)=>validDate?date.toLocaleDateString('en-PH',{...options,timeZone:c.timezone}):'To be announced';
-  const replay=()=>{setOpened(false);setOpening(false);sessionStorage.removeItem('blessing-open-v2');window.scrollTo({top:0,behavior:'instant'})};
+  const replay=()=>{setOpened(false);setOpening(false);window.scrollTo({top:0,behavior:'instant'})};
   const toggleMusic=()=>{if(!c.music)return;if(playing){audio.current?.pause();setPlaying(false)}else audio.current?.play().then(()=>setPlaying(true)).catch(()=>{})};
   return <div className={`invitation-experience ${preview?'is-preview':''} ${c.decorationsEnabled===false?'no-decorations':''}`} style={{'--accent':c.color,'--envelope-color':c.envelopeColor??'#aacbe2','--opening-duration':`${c.animationDuration??5}s`} as React.CSSProperties}>
     {c.music&&<audio src={c.music} ref={audio} loop preload="none" onPlay={()=>{if(audio.current)audio.current.volume=c.musicVolume??.2}}/>}

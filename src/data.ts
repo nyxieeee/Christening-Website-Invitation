@@ -1,8 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 export type Config = {name:string; welcome:string; subtitle:string; date:string; timezone:string; church:string; churchAddress:string; reception:string; receptionAddress:string; receptionTime:string; mapUrl:string; dressCode:string; closing:string; hero:string; gallery:string[]; music:string; deadline:string; color:string; envelopeLabel:string};
 export const defaults:Config={name:'Ethan Gabriel',welcome:'A little blessing. A beautiful beginning.',subtitle:'With grateful hearts, we invite you to celebrate the christening of our beloved son.',date:'',timezone:'Asia/Manila',church:'St. Michael the Archangel Parish',churchAddress:'Makati City, Philippines',reception:'The Ivory Garden',receptionAddress:'Taguig City, Philippines',receptionTime:'Immediately after the ceremony',mapUrl:'',dressCode:'Come in your Sunday best. Soft blues, ivory, and warm neutrals are welcome.',closing:'Your love, prayers, and presence are the sweetest gifts. Thank you for being part of this beautiful beginning.',hero:'/photo-2.jpg',gallery:['/photo-0.jpg','/photo-1.jpg','/photo-2.jpg'],music:'',deadline:'',color:'#a8c9e1',envelopeLabel:'A special invitation awaits you'};
-const env=import.meta as ImportMeta & {env:Record<string,string>};
-export const supabase=env.env.VITE_SUPABASE_URL&&env.env.VITE_SUPABASE_ANON_KEY?createClient(env.env.VITE_SUPABASE_URL,env.env.VITE_SUPABASE_ANON_KEY):null;
+const supabaseUrl=import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey=import.meta.env.VITE_SUPABASE_ANON_KEY;
+export const supabase=supabaseUrl&&supabaseKey?createClient(supabaseUrl,supabaseKey):null;
 export const demo=!supabase;
 export function readLocal<T>(key:string,fallback:T):T{try{return JSON.parse(localStorage.getItem(key)||'null')??fallback}catch{return fallback}}
 export type Guest={id:string;name:string;status:'pending'|'attending'|'declined'};

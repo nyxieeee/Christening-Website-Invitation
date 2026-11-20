@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+let source=await(await fetch('http://127.0.0.1:5173/src/data.ts')).text();
+assert.ok(source.includes('import.meta.env ='), 'Vite must inject the environment before module evaluation');
+source=source.replace(/import \{ createClient \} from [^;]+;/, 'const createClient = () => { throw Error("Unexpected service connection"); };');
+const memory=new Map();
+globalThis.localStorage={getItem:k=>memory.get(k)??null,setItem:(k,v)=>memory.set(k,v)};
+const app=await import('data:text/javascript;base64,'+Buffer.from(source).toString('base64'));
+assert.equal(app.demo,true);
+assert.equal((await app.publicConfig()).name,'Ethan Gabriel');
+const matches=await app.searchGuests('Santos');
+assert.equal(matches.length,1);
+matches[0].members[0].status='attending';
+await app.submitRSVP(matches[0]);
+assert.equal((await app.searchGuests('Santos'))[0].members[0].status,'attending');
+console.log('PASS: development module startup, published configuration, guest lookup and demo RSVP.');

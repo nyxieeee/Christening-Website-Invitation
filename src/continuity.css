@@ -1,0 +1,57 @@
+/* One shared scene stays behind the entire invitation as its content scrolls. */
+.invitation-experience {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+}
+
+.invitation-experience::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--scene) center / cover no-repeat #e6edf5;
+}
+
+.invitation-experience .dimensional-cover,
+.invitation-experience .invitation-opening-scene,
+.invitation-experience .story-sections,
+.invitation-experience footer {
+  background: transparent;
+}
+
+.dimensional-cover::before,
+.invitation-opening-scene::before {
+  background: none;
+}
+
+.invitation-experience footer {
+  border-top-color: transparent;
+}
+
+/* Keep the studio's full-page preview self-contained inside its dialog. */
+.is-preview::before {
+  position: absolute;
+  background-size: 100% auto;
+  background-position: center top;
+  background-color: #edf2f6;
+  mask-image: linear-gradient(#000 0%, #000 65%, transparent 100%);
+}
+
+.no-decorations::before {
+  background: #edf3f8;
+}
+
+.no-decorations .dimensional-cover,
+.no-decorations .invitation-opening-scene,
+.no-decorations .story-sections {
+  background: transparent;
+}
+
+/* The envelope glow passes over the same scene instead of ending on white. */
+@keyframes light-reveal {
+  0%, 76% { opacity: 0; }
+  89% { opacity: .65; }
+  100% { opacity: 0; }
+}

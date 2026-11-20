@@ -1,0 +1,99 @@
+/* Fade routes without transforming the ancestor of the fixed scenic backdrop. */
+.page-transition { transition: opacity 160ms ease; }
+.page-transition.page-exit { opacity: 0; pointer-events: none; }
+.page-transition.page-enter { opacity: 1; animation: route-enter 260ms ease both; }
+@keyframes route-enter { from { opacity: 0; } to { opacity: 1; } }
+
+/* Equal side columns keep navigation centered regardless of brand width. */
+.invitation-experience > .header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 24px;
+  width: 86%;
+  max-width: 1170px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  border-radius: 30px;
+  z-index: 40;
+}
+.invitation-experience:not(.is-preview) > .header {
+  position: fixed;
+  top: max(18px, env(safe-area-inset-top));
+}
+.header .brand { justify-self: start; min-width: 0; }
+.header .brand > .cross { flex: 0 0 auto; }
+.header .brand > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.header .nav { justify-self: center; gap: 30px; }
+.header .header-actions { justify-self: end; }
+.header .nav a::after,
+.header .nav button::after { transition: width 240ms ease; }
+.header .nav a:first-child::after { width: 0; }
+.header .nav a[aria-current='location']::after,
+.header .nav a:hover::after { width: 100%; }
+.header .nav a[aria-current='location'] { color: #377da8; }
+.invitation-experience section[id] { scroll-margin-top: 110px; }
+.modal .is-preview > .header { left: auto; transform: none; }
+
+/* Two overlapping image rows blend and slide while retaining a stable height. */
+.gallery-stage { display: grid; min-width: 0; overflow: hidden; border-radius: 13px; }
+.gallery-stage > .gallery-grid { grid-area: 1 / 1; width: 100%; min-width: 0; }
+.gallery-tile {
+  overflow: hidden;
+  border: 1px solid #c5d7e6;
+  border-radius: 13px;
+  box-shadow: 0 4px 13px #3153791f;
+  background: #fffdf8;
+}
+.gallery-stage img { object-position: center 30%; }
+.gallery-incoming { z-index: 2; animation: gallery-in 500ms cubic-bezier(.22,.61,.36,1) both; }
+.gallery-outgoing { z-index: 1; pointer-events: none; animation: gallery-out 500ms cubic-bezier(.22,.61,.36,1) both; }
+@keyframes gallery-in {
+  from { opacity: 0; transform: translateX(calc(var(--gallery-direction) * 35px)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes gallery-out {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(calc(var(--gallery-direction) * -35px)); }
+}
+.gallery-dots button { transition: background-color 250ms, transform 250ms; }
+.gallery-dots button.active { transform: scale(1.15); }
+.gallery-prev, .gallery-next { transition: background-color 200ms, box-shadow 200ms; }
+.lightbox-photo-enter { animation: photo-in 350ms ease both; }
+@keyframes photo-in { from { opacity: 0; transform: scale(.985); } to { opacity: 1; transform: scale(1); } }
+
+.modal-backdrop { animation: route-enter 200ms ease both; }
+.modal { animation: panel-in 300ms cubic-bezier(.22,.61,.36,1) both; }
+.admin-page-enter, .editor-panel-enter, .rsvp-step-enter { animation: panel-in 280ms ease both; }
+@keyframes panel-in { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
+
+@media (max-width: 1000px) {
+  .invitation-experience > .header { gap: 16px; padding-inline: 22px; }
+  .header .nav { gap: 23px; }
+  .header .nav a, .header .nav button { font-size: 17px; }
+  .header .brand { font-size: 17px; }
+}
+@media (max-width: 700px) {
+  .invitation-experience > .header {
+    width: 92%;
+    max-width: none;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    padding-inline: 16px;
+    border-radius: 26px;
+  }
+  .invitation-experience:not(.is-preview) > .header { top: max(12px, env(safe-area-inset-top)); }
+  .header .brand { font-size: 16px; }
+  .header .nav { justify-self: stretch; gap: 0; }
+  .header .nav.shown { animation: panel-in 220ms ease both; }
+  .header .nav a, .header .nav button { font-size: 19px; }
+  .header .header-actions { grid-column: 2; }
+  .invitation-experience section[id] { scroll-margin-top: 95px; }
+  .gallery-stage, .gallery-tile { border-radius: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .page-transition, .gallery-incoming, .gallery-outgoing, .lightbox-photo-enter,
+  .modal-backdrop, .modal, .admin-page-enter, .editor-panel-enter, .rsvp-step-enter,
+  .header .nav.shown { animation: none !important; transition: none !important; }
+}

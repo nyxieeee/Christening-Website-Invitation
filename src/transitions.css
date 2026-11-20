@@ -1,4 +1,12 @@
 /* Fade routes without transforming the ancestor of the fixed scenic backdrop. */
+#guest-name:focus,
+#guest-name:focus-visible {
+  outline: none;
+  outline-offset: 0;
+  box-shadow: none;
+  border-color: #779bb6;
+}
+
 .page-transition { transition: opacity 160ms ease; }
 .page-transition.page-exit { opacity: 0; pointer-events: none; }
 .page-transition.page-enter { opacity: 1; animation: route-enter 260ms ease both; }

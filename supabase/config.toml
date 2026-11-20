@@ -1,0 +1,2 @@
+[functions.invitation-api]
+verify_jwt = false

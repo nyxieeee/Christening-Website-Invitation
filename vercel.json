@@ -1,0 +1,1 @@
+{"rewrites":[{"source":"/((?!assets/|cross.svg).*)","destination":"/index.html"}]}

@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Link} from 'react-router-dom';
 import {CalendarDays, Church, Utensils, MapPin, Music2, VolumeX, Menu, X, ChevronLeft, ChevronRight, Settings, Clock, RotateCcw} from 'lucide-react';
-import {Config, demo} from './data';
+import {Config} from './data';
 import {Cross, Flourish, Countdown, Modal, SectionTitle} from './UI';
 import {RSVP} from './RSVP';
 
@@ -42,7 +42,6 @@ export function Invitation({c,preview=false}:{c:Config;preview?:boolean}) {
         <section className="rsvp-section section reveal-on-scroll"><Flourish/><h2>{c.rsvpTitle??'Will you be joining us?'}</h2><p>{c.subtitle}</p><button className="primary" onClick={()=>setRsvp(true)}><CalendarDays size={18}/>RSVP Now</button>{c.deadline&&<p className="tiny">Kindly reply by {new Date(c.deadline).toLocaleDateString('en-PH',{dateStyle:'long',timeZone:c.timezone})}</p>}</section>
       </div></main>
       <footer><Link className="footer-brand" to="/"><Cross small/>{c.name}’s Christening</Link><button className="text-button" onClick={replay}><RotateCcw size={13}/> Open your invitation again</button><Link className="admin-link" to="/admin"><Settings size={13}/>Admin Panel</Link></footer>
-      {demo&&!preview&&<div className="demo-badge">Sample invitation <span>·</span> Replace the sample photos and event details in the admin panel</div>}
     </>}
     {rsvp&&<RSVP c={c} close={()=>setRsvp(false)}/>}
     {lightbox!==null&&<Modal close={()=>setLightbox(null)} label="Photo gallery"><div className="lightbox"><img src={c.gallery[lightbox]} alt={`Family moment ${lightbox+1}`}/><div className="lightbox-controls"><button className="icon-button" aria-label="Previous photo" onClick={()=>setLightbox((lightbox-1+c.gallery.length)%c.gallery.length)}><ChevronLeft/></button><span>{lightbox+1} / {c.gallery.length}</span><button className="icon-button" aria-label="Next photo" onClick={()=>setLightbox((lightbox+1)%c.gallery.length)}><ChevronRight/></button></div></div></Modal>}

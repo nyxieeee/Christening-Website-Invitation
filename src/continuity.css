@@ -55,3 +55,20 @@
   89% { opacity: .65; }
   100% { opacity: 0; }
 }
+
+.admin-auth-status {
+  padding: 35px;
+  text-align: center;
+  border: 1px solid #e0e5ed;
+  border-radius: 12px;
+  background: #fffdf9;
+}
+.admin-auth-status p { margin-top: 20px; }
+.login-page .auth-message {
+  padding: 12px;
+  border: 1px solid #d9e3ee;
+  border-radius: 6px;
+  background: #eff4fa;
+  line-height: 1.7;
+}
+.login-page input:disabled { opacity: .6; cursor: not-allowed; }

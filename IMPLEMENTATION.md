@@ -6,7 +6,7 @@ React + Vite + TypeScript implementation of the supplied powder-blue and ivory r
 
 Run `npm install`, then `npm run dev` from this directory. On PowerShell systems that block scripts, use `npm.cmd`. `npm run build` runs TypeScript validation and creates `dist/`.
 
-Without environment variables the application runs in clearly labeled demo mode. The studio is available at `/admin`. Demo edits, published content, and guest replies persist in this browser's local storage only. Search for Santos or Juan Dela Cruz. Demo mode is not a shared RSVP service.
+Without environment variables the public invitation uses sample content and browser-local demo guest replies. Search for Santos or Juan Dela Cruz. Demo mode is not a shared RSVP service. The admin panel is always private at `/admin`: there is no public admin link and no demo login bypass. With no authentication service configured, the sign-in screen remains locked.
 
 ## Connect the real service
 
@@ -15,12 +15,12 @@ Without environment variables the application runs in clearly labeled demo mode.
 3. Copy `.env.example` to `.env.local` and fill the Supabase URL and public anon/publishable key. Never put the service-role key in a Vite variable.
 4. Deploy `invitation-api` with the Supabase CLI. Set `ALLOWED_ORIGINS` to comma-separated frontend origins, and set a random `RATE_LIMIT_SALT`. The function uses the server-provided Supabase service-role secret.
 5. Sign into `/admin`, configure actual event facts and owned/licensed media, save a draft, preview, and publish. Configure the date as an explicit ISO instant, e.g. `2027-03-15T10:00:00+08:00`, with `Asia/Manila`.
-6. Upload private media through Supabase Storage. The editor accepts JPEG/PNG/WebP photos and MP3/OGG/M4A music. Connected uploads stay in the private media bucket; published configuration resolves only referenced media to short-lived signed URLs through the Edge Function. Redeploy the updated Edge Function after upgrading this build. Demo uploads are limited to 1 MB per file and remain in browser storage.
+6. Upload private media through Supabase Storage. The editor accepts JPEG/PNG/WebP photos and MP3/OGG/M4A music. Connected uploads stay in the private media bucket; published configuration resolves only referenced media to short-lived signed URLs through the Edge Function. Redeploy the updated Edge Function after upgrading this build.
 7. Deploy `dist/` to Vercel or Sites. Vercel SPA rewrites are included. Rebuild after changing Vite environment variables.
 
 ## Implemented
 
-Responsive envelope with skip/reduced-motion handling; illustrated botanical backdrop; invitation, ceremony/reception, dress code, countdown with missing-date and zero states; gallery and keyboard-accessible modal; optional gesture-initiated music; family/individual name search, per-person RSVP, review/confirmation; admin login when connected; dashboard, content drafts/publish, event and media URL editing, accent color, guest addition, response correction and CSV export. RLS denies anonymous table access; Edge API limits requests; opaque expiring selection references; atomic group RSVP validation, deadline enforcement and response history.
+Responsive envelope with skip/reduced-motion handling; illustrated botanical backdrop; invitation, ceremony/reception, dress code, countdown with missing-date and zero states; gallery and keyboard-accessible modal; optional gesture-initiated music; family/individual name search, per-person RSVP, review/confirmation; mandatory verified admin login; dashboard, content drafts/publish, event and media URL editing, accent color, guest addition, response correction and CSV export. RLS denies anonymous table access; Edge API limits requests; opaque expiring selection references; atomic group RSVP validation, deadline enforcement and response history. The editor remains hidden while authentication is checked; Supabase `getUser` verifies identity, and the server-managed `admin_users` registry must contain an `admin` or `owner` role. Missing configuration, invalid sessions, role-check errors and ordinary signed-in accounts never unlock the editor.
 
 ## Remaining production work
 

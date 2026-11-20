@@ -5,6 +5,7 @@ import {MemoryRouter} from 'react-router-dom';
 import {Invitation} from '../src/Invitation';
 import {Admin} from '../src/Admin';
 import {defaults} from '../src/data';
+import {verifyAdminAccess,AdminAuthClient} from '../src/adminAccess';
 
 const memory=new Map<string,string>();
 const storage={getItem:(k:string)=>memory.get(k)??null,setItem:(k:string,v:string)=>memory.set(k,v),removeItem:(k:string)=>memory.delete(k)};
@@ -23,8 +24,24 @@ assert.match(invitation,/christening-portrait.png/);
 assert.match(invitation,/Will you be attending/);
 assert.match(invitation,/The Ceremony/);
 assert.match(invitation,/Gallery/);
+assert.ok(!invitation.includes('<footer'),'The public invitation has no bottom footer.');
+assert.ok(!invitation.includes('Admin Panel'),'Administration must not be advertised on the public invitation.');
 const admin=render(<Admin config={defaults} onPublish={()=>{}}/>);
-for(const label of ['Hero Section','Live Preview','Save Changes','Music &amp; Animation','RSVP Responses','Photo focal point']) assert.ok(admin.includes(label),`Missing admin control: ${label}`);
-assert.match(admin,/mini-invitation/);
-assert.match(admin,/role="tablist"/);
-console.log('PASS: envelope, invitation, and tabbed admin editor with live preview all render without runtime errors.');
+assert.match(admin,/Admin Sign In/);
+assert.match(admin,/Admin access is locked/);
+for(const label of ['Hero Section','Live Preview','Save Changes','RSVP Responses'])assert.ok(!admin.includes(label),`Unauthenticated admin exposes ${label}`);
+let roleQueries=0;
+const fakeClient=(user:boolean,role:string|null,authError=false,roleError=false)=>({
+  auth:{getUser:async()=>({data:{user:user?{id:'verified-user'}:null},error:authError?Error('Invalid token'):null})},
+  from:()=>{roleQueries++;return {select:()=>({eq:()=>({maybeSingle:async()=>({data:role?{role}:null,error:roleError?Error('Unavailable'):null})})})}}
+}) as unknown as AdminAuthClient;
+assert.equal(await verifyAdminAccess(null),'unavailable');
+assert.equal(await verifyAdminAccess(fakeClient(false,null)),'signed-out');
+assert.equal(await verifyAdminAccess(fakeClient(true,'owner',true)),'signed-out');
+assert.equal(roleQueries,0,'Invalid sessions must not query private role data');
+assert.equal(await verifyAdminAccess(fakeClient(true,null)),'forbidden');
+assert.equal(await verifyAdminAccess(fakeClient(true,'viewer')),'forbidden');
+assert.equal(await verifyAdminAccess(fakeClient(true,'admin')),'authorized');
+assert.equal(await verifyAdminAccess(fakeClient(true,'owner')),'authorized');
+assert.equal(await verifyAdminAccess(fakeClient(true,'admin',false,true)),'error');
+console.log('PASS: envelope and invitation render; footer removed; admin is locked without verified identity and an admin/owner role.');

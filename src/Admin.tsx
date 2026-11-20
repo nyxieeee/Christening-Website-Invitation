@@ -1,10 +1,11 @@
 import React,{useEffect,useState} from 'react';
 import {Link} from 'react-router-dom';
 import {CalendarDays,Church,Utensils,MapPin,Image as ImageIcon,LayoutDashboard,Users,Settings,Music2,Mail,Eye,Save,Upload,Download,Plus,ChevronLeft,ChevronRight,Trash2,Monitor,Smartphone,LogOut,Check,SlidersHorizontal} from 'lucide-react';
-import {Config,defaults,demo,supabase,readLocal,groups,Group} from './data';
+import {Config,defaults,demo,supabase,Group} from './data';
 import {Cross,Modal} from './UI';
 import {Invitation,Bow} from './Invitation';
 import {GuestTable,AddGuest} from './Guests';
+import {AdminAccess,verifyAdminAccess} from './adminAccess';
 
 const sections=[['Dashboard',LayoutDashboard],['Invitation Content',Mail],['Event Details',CalendarDays],['Media & Gallery',ImageIcon],['RSVP Responses',Check],['Guest List',Users],['Appearance',SlidersHorizontal],['Music & Animation',Music2],['Settings',Settings]] as const;
 const editorTabs=['General','Hero','Details','Gallery','RSVP','Design'];
@@ -13,14 +14,34 @@ async function resolvedConfig(c:Config):Promise<Config>{return {...c,hero:await 
 function Asset({src,...props}:React.ImgHTMLAttributes<HTMLImageElement>){const[url,setUrl]=useState(src);useEffect(()=>{let active=true;if(src)resolveMedia(src).then(v=>{if(active)setUrl(v)}).catch(()=>{});return()=>{active=false}},[src]);return <img {...props} src={url}/>}
 
 export function Admin({config,onPublish}:{config:Config;onPublish:(c:Config)=>void}){
-  const[authenticated,setAuthenticated]=useState(demo),[tab,setTab]=useState('Invitation Content'),[editor,setEditor]=useState('Hero');
-  const[draft,setDraft]=useState<Config>(()=>({...defaults,...readLocal('blessing-draft',config)}));
-  const[guestList,setGuestList]=useState<Group[]>(demo?groups():[]),[notice,setNotice]=useState(''),[preview,setPreview]=useState<Config|null>(null);
+  const[access,setAccess]=useState<AdminAccess>(supabase?'checking':'unavailable'),[tab,setTab]=useState('Invitation Content'),[editor,setEditor]=useState('Hero');
+  const authenticated=access==='authorized';
+  const[draft,setDraft]=useState<Config>(()=>({...defaults,...config}));
+  const[guestList,setGuestList]=useState<Group[]>([]),[notice,setNotice]=useState(''),[preview,setPreview]=useState<Config|null>(null);
   const[email,setEmail]=useState(''),[password,setPassword]=useState(''),[busy,setBusy]=useState(false),[device,setDevice]=useState('desktop'),[dirty,setDirty]=useState(false),[guestQuery,setGuestQuery]=useState('');
-  useEffect(()=>{if(!supabase)return;supabase.auth.getSession().then(({data})=>setAuthenticated(!!data.session));const{data}=supabase.auth.onAuthStateChange((_e,s)=>setAuthenticated(!!s));return()=>data.subscription.unsubscribe()},[]);
+  useEffect(()=>{
+    const client=supabase;
+    if(!client)return;
+    let active=true,generation=0;
+    const check=async()=>{
+      const current=++generation;
+      setAccess('checking');
+      const result=await verifyAdminAccess(client);
+      if(active&&current===generation)setAccess(result);
+    };
+    void check();
+    const{data}=client.auth.onAuthStateChange((_event,session)=>{
+      if(!active)return;
+      if(!session){generation++;setAccess('signed-out');setGuestList([]);setPreview(null);setDraft({...defaults,...config});return}
+      // Auth callbacks run under the auth lock; verify after it is released.
+      setTimeout(()=>{if(active)void check()},0);
+    });
+    return()=>{active=false;generation++;data.subscription.unsubscribe()};
+  },[]);
   useEffect(()=>{if(!authenticated||!supabase)return;Promise.all([supabase.from('content_versions').select('config').eq('state','draft').limit(1).maybeSingle(),supabase.from('invitation_groups').select('id,name,members:guests(id,name,status)')]).then(([a,b])=>{if(a.error||b.error){setNotice('Admin access could not be verified. Check your assigned role.');return}setDraft({...defaults,...(a.data?.config??config)});if(b.data)setGuestList(b.data as Group[])})},[authenticated]);
   const update=<K extends keyof Config>(key:K,value:Config[K])=>{setDraft(d=>({...d,[key]:value}));setDirty(true)};
   const save=async(publish=false)=>{setBusy(true);setNotice('');try{
+    if(!supabase||!authenticated)throw Error('Administrator sign-in is required.');
     if(!draft.name.trim())throw Error('Please add the child’s name.');
     new Intl.DateTimeFormat('en',{timeZone:draft.timezone});
     for(const key of ['date','deadline'] as const)if(draft[key]&&isNaN(new Date(draft[key]).getTime()))throw Error('Enter a valid event date and RSVP deadline.');
@@ -29,6 +50,7 @@ export function Admin({config,onPublish}:{config:Config;onPublish:(c:Config)=>vo
     if(publish)onPublish(await resolvedConfig(draft));setDirty(false);setNotice(publish?'Your invitation has been published.':'Draft saved. Publish when you’re ready to share these changes.');
   }catch(e){setNotice(e instanceof Error?e.message:'Unable to save. Your browser storage may be full.')}finally{setBusy(false)}};
   const upload=async(file:File,key:'hero'|'music'|number)=>{setBusy(true);try{
+    if(!supabase||!authenticated)throw Error('Administrator sign-in is required.');
     const image=typeof key==='number'||key==='hero';
     const allowed=image?['image/jpeg','image/png','image/webp']:['audio/mpeg','audio/ogg','audio/mp4'];
     if(!allowed.includes(file.type))throw Error(image?'Choose a JPEG, PNG, or WebP image.':'Choose an MP3, OGG, or M4A audio file.');
@@ -43,7 +65,26 @@ export function Admin({config,onPublish}:{config:Config;onPublish:(c:Config)=>vo
   const fileButton=(key:'hero'|'music'|number,label='Replace')=><label className="upload-button"><Upload size={14}/>{label}<input type="file" accept={key==='music'?'audio/mpeg,audio/ogg,audio/mp4':'image/jpeg,image/png,image/webp'} onChange={e=>{if(e.target.files?.[0])upload(e.target.files[0],key);e.target.value=''}} disabled={busy}/></label>;
   const exportCSV=()=>{const escape=(v:string)=>'"'+v.replace(/"/g,'""')+'"';const csv=['group_name,guest_full_name,status',...guestList.flatMap(g=>g.members.map(m=>[g.name,m.name,m.status].map(escape).join(',')))].join('\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));const a=document.createElement('a');a.href=url;a.download='christening-guest-responses.csv';a.click();URL.revokeObjectURL(url)};
   const showPreview=async()=>{try{setPreview(await resolvedConfig(draft))}catch{setNotice('Unable to load a private media file. Try replacing it.')}};
-  if(!authenticated)return <div className="login-page"><form onSubmit={async e=>{e.preventDefault();setBusy(true);try{const r=await supabase!.auth.signInWithPassword({email,password});if(r.error)throw r.error}catch{setNotice('Unable to sign in. Check your credentials and admin access.')}finally{setBusy(false)}}}><Cross/><span className="eyebrow">YOUR FAMILY’S CELEBRATION</span><h1>Admin Panel</h1><p>Sign in to care for every little detail.</p><label>Email<input type="email" autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} required/></label><label>Password<input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} required/></label><button className="primary" disabled={busy}>{busy?'Signing in…':'Sign in'}</button>{notice&&<p role="alert">{notice}</p>}<Link to="/">Back to invitation</Link></form></div>;
+  if(access==='checking')return <div className="login-page"><div className="admin-auth-status" role="status"><Cross/><p>Verifying administrator access…</p></div></div>;
+  if(!authenticated)return <div className="login-page"><form onSubmit={async e=>{
+    e.preventDefault();
+    if(!supabase){setNotice('Admin access is locked until authentication is configured.');return}
+    setBusy(true);setNotice('');
+    try{const r=await supabase.auth.signInWithPassword({email,password});if(r.error)throw r.error}
+    catch{setNotice('Unable to sign in. Check your credentials and admin access.')}
+    finally{setBusy(false)}
+  }}><Cross/><span className="eyebrow">PRIVATE ADMINISTRATION</span><h1>Admin Sign In</h1>
+    <p>Sign in with an authorized administrator account.</p>
+    {access==='unavailable'&&<p className="auth-message" role="status">Authentication is not configured. Admin access is locked. Connect Supabase and provision an administrator account to enable sign-in.</p>}
+    {access==='forbidden'&&<p className="auth-message" role="alert">This account does not have administrator access.</p>}
+    {access==='error'&&<p className="auth-message" role="alert">Administrator access could not be verified. Please try signing in again.</p>}
+    <label>Email<input type="email" autoComplete="username" value={email} onChange={e=>setEmail(e.target.value)} disabled={!supabase||busy} required/></label>
+    <label>Password<input type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)} disabled={!supabase||busy} required/></label>
+    <button className="primary" disabled={!supabase||busy}>{busy?'Signing in…':'Sign in'}</button>
+    {notice&&<p role="alert">{notice}</p>}
+    {supabase&&access==='forbidden'&&<button type="button" className="text-button" onClick={()=>supabase?.auth.signOut()}>Sign out of this account</button>}
+    <Link to="/">Back to invitation</Link>
+  </form></div>;
   const all=guestList.flatMap(g=>g.members);
   const contentPage=['Invitation Content','Event Details','Media & Gallery','Appearance','Music & Animation'].includes(tab);
   const activeEditor=tab==='Event Details'?'Details':tab==='Media & Gallery'?'Gallery':tab==='Appearance'?'Design':editor;

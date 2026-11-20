@@ -1,6 +1,6 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {Link} from 'react-router-dom';
-import {CalendarDays, Church, Utensils, MapPin, Music2, VolumeX, Menu, X, ChevronLeft, ChevronRight, Settings, Clock, RotateCcw} from 'lucide-react';
+import {CalendarDays, Church, Utensils, MapPin, Music2, VolumeX, Menu, X, ChevronLeft, ChevronRight, Clock, RotateCcw} from 'lucide-react';
 import {Config} from './data';
 import {Cross, Flourish, Countdown, Modal, SectionTitle} from './UI';
 import {RSVP} from './RSVP';
@@ -41,7 +41,6 @@ export function Invitation({c,preview=false}:{c:Config;preview?:boolean}) {
         <section className="closing section reveal-on-scroll"><div className="closing-title"><Cross small/><h2>A Message from Us</h2></div><p>{c.closing}</p><p className="signature">With love, {c.name} & family</p><Bow/></section>
         <section className="rsvp-section section reveal-on-scroll"><Flourish/><h2>{c.rsvpTitle??'Will you be joining us?'}</h2><p>{c.subtitle}</p><button className="primary" onClick={()=>setRsvp(true)}><CalendarDays size={18}/>RSVP Now</button>{c.deadline&&<p className="tiny">Kindly reply by {new Date(c.deadline).toLocaleDateString('en-PH',{dateStyle:'long',timeZone:c.timezone})}</p>}</section>
       </div></main>
-      <footer><Link className="footer-brand" to="/"><Cross small/>{c.name}’s Christening</Link><button className="text-button" onClick={replay}><RotateCcw size={13}/> Open your invitation again</button><Link className="admin-link" to="/admin"><Settings size={13}/>Admin Panel</Link></footer>
     </>}
     {rsvp&&<RSVP c={c} close={()=>setRsvp(false)}/>}
     {lightbox!==null&&<Modal close={()=>setLightbox(null)} label="Photo gallery"><div className="lightbox"><img src={c.gallery[lightbox]} alt={`Family moment ${lightbox+1}`}/><div className="lightbox-controls"><button className="icon-button" aria-label="Previous photo" onClick={()=>setLightbox((lightbox-1+c.gallery.length)%c.gallery.length)}><ChevronLeft/></button><span>{lightbox+1} / {c.gallery.length}</span><button className="icon-button" aria-label="Next photo" onClick={()=>setLightbox((lightbox+1)%c.gallery.length)}><ChevronRight/></button></div></div></Modal>}

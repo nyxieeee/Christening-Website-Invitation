@@ -1,0 +1,27 @@
+import React from 'react';
+import assert from 'node:assert/strict';
+import {renderToStaticMarkup} from 'react-dom/server';
+import {MemoryRouter} from 'react-router-dom';
+import {Invitation} from '../src/Invitation';
+import {Admin} from '../src/Admin';
+import {defaults} from '../src/data';
+
+const memory=new Map<string,string>();
+const storage={getItem:(k:string)=>memory.get(k)??null,setItem:(k:string,v:string)=>memory.set(k,v),removeItem:(k:string)=>memory.delete(k)};
+Object.assign(globalThis,{localStorage:storage,sessionStorage:storage});
+const render=(element:React.ReactNode)=>renderToStaticMarkup(<MemoryRouter>{element}</MemoryRouter>);
+const cover=render(<Invitation c={defaults}/>);
+assert.match(cover,/envelope-flap/);
+assert.match(cover,/letter-border/);
+assert.match(cover,/Open Invitation/);
+assert.match(cover,/satin-bow.png/);
+const invitation=render(<Invitation c={defaults} preview/>);
+assert.match(invitation,/christening-portrait.png/);
+assert.match(invitation,/Will you be attending/);
+assert.match(invitation,/The Ceremony/);
+assert.match(invitation,/Gallery/);
+const admin=render(<Admin config={defaults} onPublish={()=>{}}/>);
+for(const label of ['Hero Section','Live Preview','Save Changes','Music &amp; Animation','RSVP Responses','Photo focal point']) assert.ok(admin.includes(label),`Missing admin control: ${label}`);
+assert.match(admin,/mini-invitation/);
+assert.match(admin,/role="tablist"/);
+console.log('PASS: envelope, invitation, and tabbed admin editor with live preview all render without runtime errors.');

@@ -1,0 +1,73 @@
+/* Sculpted ivory portrait framing with a smaller ribbon resting on the base. */
+.hero-portrait[data-frame],.mini-portrait[data-frame]{--frame-radius:50%;--photo-radius:50%}
+.hero-portrait[data-frame='arch'],.mini-portrait[data-frame='arch']{--frame-radius:50% 50% 18px 18px;--photo-radius:50% 50% 8px 8px}
+.hero-portrait[data-frame='rounded'],.mini-portrait[data-frame='rounded']{--frame-radius:32px;--photo-radius:20px}
+.invitation-experience .hero-portrait[data-frame]{padding:0 8px 48px;margin-bottom:12px}
+.hero-portrait[data-frame] .portrait-outline{
+ position:relative;
+ padding:18px;
+ border:0;
+ outline:none;
+ border-radius:var(--frame-radius);
+ transform:none;
+ background:linear-gradient(135deg,#fffefb 0%,#f8f2e8 30%,#e4d9c8 53%,#fffdf7 70%,#f0e6d8 100%);
+ box-shadow:0 1px 1px #fff,inset 0 0 0 1px #cfc1ab,inset 0 0 0 5px #fffdf8,inset 0 0 0 7px #e8dfd0,inset -3px -5px 8px #b8a78c33,0 9px 18px #65533c15,0 20px 35px #324e6b1f;
+}
+.hero-portrait[data-frame] .portrait-outline::before{
+ content:'';
+ position:absolute;
+ inset:8px;
+ border:1px solid #fffffff0;
+ border-radius:inherit;
+ box-shadow:inset 0 1px 2px #b9a48555,0 1px 1px #fff;
+ pointer-events:none;
+}
+.hero-portrait[data-frame] .portrait-outline::after{
+ content:'';
+ position:absolute;
+ inset:14px;
+ border:1px solid #c7b591;
+ border-radius:inherit;
+ box-shadow:0 0 0 1px #fff9,inset 0 1px 2px #9f8b6c29;
+ pointer-events:none;
+}
+.hero-portrait[data-frame] .portrait-outline img{
+ aspect-ratio:4 / 5;
+ border-radius:var(--photo-radius);
+ border:0;
+ box-shadow:0 0 0 1px #d7cbb9;
+ background:#f7f1e8;
+}
+.hero-portrait[data-frame] .portrait-bow{
+ width:152px;
+ height:80px;
+ left:calc(50% - 76px);
+ bottom:-12px;
+ max-width:46%;
+ object-fit:contain;
+ transform:none;
+ filter:drop-shadow(0 3px 2px #4a6a802b);
+}
+.mini-portrait[data-frame]{padding-bottom:16px}
+.mini-portrait[data-frame]>img:first-child{
+ border-radius:var(--photo-radius);
+ border:6px solid #fcf8ee;
+ outline:1px solid #cfbea2;
+ box-shadow:0 0 0 2px #fff9,0 4px 8px #4f617b2b,inset 0 0 0 1px #e4d9c7;
+}
+.mini-portrait[data-frame]>.satin-bow{
+ width:48%;
+ height:42px;
+ left:26%;
+ bottom:-12px;
+ filter:drop-shadow(0 2px 1px #4a6a802b);
+}
+.mini-portrait[data-frame]>.asset-placeholder{border-radius:var(--photo-radius)}
+@media(max-width:700px){
+ .invitation-experience .hero-portrait[data-frame]{width:74%;max-width:290px;padding:0 4px 38px;margin-bottom:9px}
+ .hero-portrait[data-frame] .portrait-outline{padding:14px;box-shadow:inset 0 0 0 1px #cfc1ab,inset 0 0 0 4px #fffdf8,inset 0 0 0 6px #e8dfd0,inset -3px -4px 6px #b8a78c30,0 9px 22px #324e6b24}
+ .hero-portrait[data-frame] .portrait-outline::before{inset:7px}
+ .hero-portrait[data-frame] .portrait-outline::after{inset:11px}
+ .hero-portrait[data-frame] .portrait-bow{width:122px;height:65px;left:calc(50% - 61px);bottom:-10px;max-width:47%}
+ .hero-portrait[data-frame='rounded']{--frame-radius:26px;--photo-radius:15px}
+}

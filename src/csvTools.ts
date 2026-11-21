@@ -18,7 +18,7 @@ const normalize=(name:string)=>name.normalize('NFD').replace(/[\u0300-\u036f]/g,
 export function prepareGuestImport(csv:GuestCSV,mapping:GuestMapping,existing:Group[]=[],id:()=>string=()=>crypto.randomUUID()){
  const issues:string[]=[],groups=new Map<string,Group>(),known=new Set(existing.flatMap(group=>group.members.map(member=>normalize(member.name))));let duplicateCandidates=0;
  const value=(row:string[],column:string)=>column?String(row[csv.headers.indexOf(column)]??'').trim():'';
- if(!mapping.name||!csv.headers.includes(mapping.name))return {groups:[] as Group[],issues:['Select the column containing each guest?s name.'],duplicateCandidates:0};
+ if(!mapping.name||!csv.headers.includes(mapping.name))return {groups:[] as Group[],issues:['Select the column containing each guest’s name.'],duplicateCandidates:0};
  csv.rows.forEach((row,index)=>{const name=value(row,mapping.name),label=value(row,mapping.group),explicitKey=value(row,mapping.key),status=value(row,mapping.status)||'pending';
  if(!name||name.length>120){issues.push('Row '+(index+2)+': add a guest name of at most 120 characters.');return}
  if(label.length>120){issues.push('Row '+(index+2)+': the family name is too long.');return}

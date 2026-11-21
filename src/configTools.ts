@@ -15,7 +15,7 @@ export function eventInstant(local:string,zone:string):string{
 export function formatEvent(value:string,zone:string,options:Intl.DateTimeFormatOptions={dateStyle:'long',timeStyle:'short'}){return value?new Intl.DateTimeFormat('en-PH',{...options,timeZone:zone}).format(new Date(value)):''}
 export function validateInvitation(c:Config,publish=false):string[]{
  const errors:string[]=[];
- if(!c.name.trim())errors.push('Add the child?s name.');
+ if(!c.name.trim())errors.push('Add the child’s name.');
  try{new Intl.DateTimeFormat('en',{timeZone:c.timezone})}catch{errors.push('Choose a valid timezone.')}
  for(const key of ['date','deadline'] as const)if(c[key]&&!Number.isFinite(Date.parse(c[key])))errors.push('Choose a valid '+(key==='date'?'event date':'RSVP deadline')+'.');
  if(c.date&&c.deadline&&Date.parse(c.deadline)>Date.parse(c.date))errors.push('The RSVP deadline must be on or before the event.');
@@ -24,4 +24,4 @@ export function validateInvitation(c:Config,publish=false):string[]{
  if(publish){if(c.gallery.some(url=>!url.trim()))errors.push('Replace or remove empty gallery photos.');if(!c.date)errors.push('Set the event date before publishing.');if(!c.hero)errors.push('Add a main photo.');if(visibleSections(c).includes('details')&&!c.church.trim())errors.push('Add the ceremony venue.')}
  return errors;
 }
-export function invitationChecklist(c:Config,guests:number){return [{key:'identity',label:'Child?s name',done:!!c.name.trim(),tab:'Invitation Content',editor:'Hero'},{key:'date',label:'Event date and time',done:!!c.date&&Number.isFinite(Date.parse(c.date)),tab:'Event Details',editor:'Details'},{key:'venues',label:'Ceremony and reception',done:!!c.church.trim()&&!!c.churchAddress.trim()&&!!c.reception.trim(),tab:'Event Details',editor:'Details'},{key:'photos',label:'Family photographs',done:!!c.hero&&!c.hero.startsWith('/christening-')&&c.gallery.length>0,tab:'Media & Gallery',editor:'Gallery'},{key:'guests',label:'Guest invitations',done:guests>0,tab:'Guest List',editor:'RSVP'}]}
+export function invitationChecklist(c:Config,guests:number){return [{key:'identity',label:'Child’s name',done:!!c.name.trim(),tab:'Invitation Content',editor:'Hero'},{key:'date',label:'Event date and time',done:!!c.date&&Number.isFinite(Date.parse(c.date)),tab:'Event Details',editor:'Details'},{key:'venues',label:'Ceremony and reception',done:!!c.church.trim()&&!!c.churchAddress.trim()&&!!c.reception.trim(),tab:'Event Details',editor:'Details'},{key:'photos',label:'Family photographs',done:!!c.hero&&!c.hero.startsWith('/christening-')&&c.gallery.length>0,tab:'Media & Gallery',editor:'Gallery'},{key:'guests',label:'Guest invitations',done:guests>0,tab:'Guest List',editor:'RSVP'}]}

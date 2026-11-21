@@ -46,7 +46,7 @@ Built-in ImageGen created these project assets:
 - public/satin-bow.png — transparent isolated powder blue satin bow with realistic folded loops and tails.
 - public/christening-portrait.png — fictional smiling baby in ivory baptism clothing on a quilted blanket; illustrative only.
 
-Validation: npm run build; node check-startup.mjs against a running development server; node check-render.mjs for server-rendering smoke checks of the envelope, full invitation and tabbed admin editor. Browser screenshot/click verification remains unavailable because this session's browser host and native UI pipe are offline.
+Validation: npm run build; node scripts/check-startup.mjs against a running development server; node scripts/check-render.mjs for server-rendering smoke checks of the envelope, full invitation and tabbed admin editor. Browser screenshot/click verification remains unavailable because this session's browser host and native UI pipe are offline.
 
 
 ## Completion pass

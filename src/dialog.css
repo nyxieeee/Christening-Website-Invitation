@@ -1,0 +1,16 @@
+/* Keep the page width stable when a dialog locks scrolling. */
+html{scrollbar-gutter:stable}
+.modal-layer{position:fixed;inset:0;z-index:120;isolation:isolate}
+.modal-scrim{position:absolute;inset:0;background:rgba(23,44,63,.38);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);opacity:0;transition:opacity 240ms ease;will-change:opacity}
+.modal-layer>.modal-backdrop{background:transparent;backdrop-filter:none;-webkit-backdrop-filter:none;animation:none!important;z-index:1;overscroll-behavior:contain}
+.modal-layer .modal{animation:none!important;opacity:0;transform:translate3d(0,12px,0) scale(.985);transition:opacity 280ms ease,transform 340ms cubic-bezier(.16,1,.3,1);will-change:transform,opacity;backface-visibility:hidden}
+.modal-layer[data-state='open']>.modal-scrim{opacity:1}
+.modal-layer[data-state='open'] .modal{opacity:1;transform:translate3d(0,0,0) scale(1)}
+.modal-layer[data-state='closing']>.modal-scrim{opacity:0;transition-duration:180ms}
+.modal-layer[data-state='closing'] .modal{opacity:0;transform:translate3d(0,6px,0) scale(.993);transition-duration:180ms;transition-timing-function:ease-out;pointer-events:none}
+.modal-layer .rsvp-step-enter{animation:dialog-content-in 180ms ease both}
+@keyframes dialog-content-in{from{opacity:0}to{opacity:1}}
+body[data-modal-open='true'] .light-particles i,body[data-modal-open='true'] .scene-halo{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.modal-layer .modal,.modal-layer>.modal-scrim{transition:none!important;transform:none!important}.modal-layer .rsvp-step-enter{animation:none!important}}
+
+.rsvp-modal .primary{background:linear-gradient(180deg,color-mix(in srgb,var(--accent,#a8c9e1) 80%,#fff),color-mix(in srgb,var(--accent,#a8c9e1) 64%,#25618c) 48%,color-mix(in srgb,var(--accent,#a8c9e1) 35%,#25618c) 51%,color-mix(in srgb,var(--accent,#a8c9e1) 55%,#25618c))}

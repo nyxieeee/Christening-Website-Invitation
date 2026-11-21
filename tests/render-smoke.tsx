@@ -4,6 +4,7 @@ import {renderToStaticMarkup} from 'react-dom/server';
 import {MemoryRouter} from 'react-router-dom';
 import {Invitation} from '../src/Invitation';
 import {Admin} from '../src/Admin';
+import {RSVP} from '../src/RSVP';
 import {defaults} from '../src/data';
 import {eventInstant,localDateValue,validateInvitation} from '../src/configTools';
 import {parseGuestCSV,prepareGuestImport} from '../src/csvTools';
@@ -80,3 +81,10 @@ assert.throws(()=>parseGuestCSV('name,name\nA,B'));
 const duplicate=prepareGuestImport(parseGuestCSV('name\nMaria Santos\nMaria Santos'),{name:'name',group:'',key:'',status:''},[],()=>String(++id));
 assert.equal(duplicate.duplicateCandidates,1);assert.equal(duplicate.groups.length,2,'Duplicate names must retain distinct invitations');
 console.log('PASS: quoted CSV values, explicit family grouping, duplicate review, and malformed-file handling.');
+
+const replyDialog=render(<RSVP c={defaults} close={()=>{}}/>);
+assert.match(replyDialog,/role="dialog"/);
+assert.match(replyDialog,/Your name or family name/);
+assert.match(replyDialog,/Find invitation/);
+assert.match(replyDialog,/Close dialog/);
+console.log('PASS: RSVP dialog renders its content and dismissal controls through the shared dialog.');

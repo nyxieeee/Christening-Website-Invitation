@@ -10,7 +10,7 @@ Without environment variables the public invitation uses sample content and brow
 
 ## Connect the real service
 
-1. Create a Supabase project and apply both SQL migrations in `supabase/migrations/` in numeric order using the SQL editor or Supabase CLI.
+1. Create the administrator in Authentication > Users, then run the entire `supabase/setup.sql` file in SQL Editor. It includes all tables, policies, RPCs, storage, and owner access and can be rerun without resetting invitation data.
 2. Create the owner's Auth user, then insert its UUID into `admin_users` with role `owner` using the SQL editor. There is no public admin signup.
 3. Copy `.env.example` to `.env.local` and fill the Supabase URL and public anon/publishable key. Never put the service-role key in a Vite variable.
 4. Deploy `invitation-api` with the Supabase CLI. Set `ALLOWED_ORIGINS` to comma-separated frontend origins, and set a random `RATE_LIMIT_SALT`. The function uses the server-provided Supabase service-role secret.
@@ -53,8 +53,22 @@ Validation: npm run build; node check-startup.mjs against a running development 
 
 The invitation now renders editable welcome copy, event/gallery/family-message headings, celebration title and dedication, RSVP button and confirmation/closed messages. Sections can be hidden or reordered; hiding RSVP removes its entry points. Fonts and section spacing are configurable. Empty galleries are omitted for guests. An unconfigured date has a deliberate waiting state rather than an empty countdown. Image descriptions and gallery captions are editable.
 
-The studio includes timezone-aware date/time pickers, a readiness checklist, real countdown values in the preview, version-history review and restore-as-draft, safer publication validation, and protection against newer edits being marked saved while an older save is running. Apply 002_completion.sql even if you previously applied 001: it adds atomic CSV import and synchronizes the saved draft with the published snapshot. The RSVP journey includes progress, per-person response buttons, review, a response receipt, and error recovery.
+The studio includes timezone-aware date/time pickers, a readiness checklist, real countdown values in the preview, version-history review and restore-as-draft, safer publication validation, and protection against newer edits being marked saved while an older save is running. Run `supabase/setup.sql` for both new and existing projects; it includes atomic CSV import and synchronizes draft and published snapshots. The RSVP journey includes progress, per-person response buttons, review, a response receipt, and error recovery.
 
 CSV imports parse quoted values, map columns, preview family grouping, flag duplicates for explicit review, and commit through one administrator-only database transaction. No live Supabase calls or database migration execution were verified in this session because the project connection remains for the owner to configure.
 
 Built-in ImageGen produced public/gallery-sleeping.png and public/gallery-little-hand.png. Prompts requested a matching fictional baby in the existing ivory baptism outfit, sleeping on the same quilted blanket, and a close-up of his tiny hand on the outfit, using the original sample portrait as reference. These are coherent demonstration assets, not the family's real photographs.
+
+
+## Manual Supabase setup
+
+1. Create and confirm the Auth user `juanenriquesantiago830@gmail.com` with your chosen password in Authentication > Users.
+2. Run the whole `supabase/setup.sql` file in SQL Editor. If the user was missing, create it and rerun the same file.
+3. Create an Edge Function named `invitation-api`, replace its index.ts with `supabase/functions/invitation-api/index.ts`, and deploy. Disable Verify JWT for this public guest API (the local config already specifies verify_jwt=false). Admin operations still require Auth and RLS.
+4. Set Edge Function secrets `ALLOWED_ORIGINS` (comma-separated site origins, see `supabase/.env.functions.example`) and `RATE_LIMIT_SALT` (a long randomly generated value). Supabase provides SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY to hosted functions. Never place a service-role key in frontend environment variables.
+5. Add your public publishable key as `VITE_SUPABASE_PUBLISHABLE_KEY` in `.env.local`, keep the existing project URL, and restart Vite. Production builds also need these frontend values when building.
+6. Sign in at /admin, configure your invitation, save, and publish.
+
+## Baby gift wish list
+
+Use Gift Wish List in the admin sidebar or Gifts in the content editor. Add names, sizes/brands/notes, and optional HTTPS store links; reorder or remove items. The initial list is empty and hidden publicly. The Sections tab controls placement and visibility. Save and Publish use the same protected content snapshots as the rest of the invitation.

@@ -1,3 +1,4 @@
+import {GiftWishlist,GiftWishlistEditor} from '../src/GiftWishlist';
 import React from 'react';
 import assert from 'node:assert/strict';
 import {renderToStaticMarkup} from 'react-dom/server';
@@ -88,3 +89,11 @@ assert.match(replyDialog,/Your name or family name/);
 assert.match(replyDialog,/Find invitation/);
 assert.match(replyDialog,/Close dialog/);
 console.log('PASS: RSVP dialog renders its content and dismissal controls through the shared dialog.');
+
+const gifts={...defaults,giftIdeas:[{id:'one',name:'Mom chosen gift',notes:'Size 6 months',url:'https://example.com/gift'}]};
+assert.equal(render(<GiftWishlist c={defaults}/>),'');
+const giftMarkup=render(<GiftWishlist c={gifts}/>);assert.match(giftMarkup,/Mom chosen gift/);assert.match(giftMarkup,/Size 6 months/);assert.match(giftMarkup,/https:\/\/example.com\/gift/);
+const unsafe={...gifts,giftIdeas:[{...gifts.giftIdeas[0],url:'javascript:alert(1)'}]};assert.doesNotMatch(render(<GiftWishlist c={unsafe}/>),/href=/);assert.ok(validateInvitation(unsafe).some(error=>error.includes('HTTPS')));
+assert.match(render(<GiftWishlistEditor c={defaults} update={()=>{}}/>),/No gifts added yet/);
+assert.doesNotMatch(render(<Invitation c={{...gifts,sections:['details']}} preview/>),/Mom chosen gift/);
+console.log('PASS: empty wish list hidden, editable gift details, safe store links and section visibility.');

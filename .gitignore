@@ -5,3 +5,9 @@ dist/
 *.tsbuildinfo
 .npm-cache/
 .qa/
+
+supabase/.temp/
+
+supabase/.branches/
+
+.env.functions.local

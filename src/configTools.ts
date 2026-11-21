@@ -1,7 +1,7 @@
 import type {Config} from './data';
-export type SectionKey='welcome'|'details'|'gallery'|'message'|'rsvp';
-export const sectionLabels:Record<SectionKey,string>={welcome:'Welcome message',details:'Event details',gallery:'Photo gallery',message:'Message from the family',rsvp:'RSVP invitation'};
-export const defaultSections:SectionKey[]=['welcome','details','gallery','message','rsvp'];
+export type SectionKey='welcome'|'details'|'gallery'|'gifts'|'message'|'rsvp';
+export const sectionLabels:Record<SectionKey,string>={welcome:'Welcome message',details:'Event details',gallery:'Photo gallery',gifts:'Baby gift wish list',message:'Message from the family',rsvp:'RSVP invitation'};
+export const defaultSections:SectionKey[]=['welcome','details','gallery','gifts','message','rsvp'];
 export function visibleSections(c:Config):SectionKey[]{return c.sections===undefined?[...defaultSections]:[...new Set(c.sections)].filter(key=>key in sectionLabels)}
 const parts=(value:string,zone:string)=>Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:zone,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hourCycle:'h23'}).formatToParts(new Date(value)).map(part=>[part.type,part.value]));
 export function localDateValue(value:string,zone:string){if(!value)return '';const p=parts(value,zone);return p.year+'-'+p.month+'-'+p.day+'T'+p.hour+':'+p.minute}
@@ -13,8 +13,12 @@ export function eventInstant(local:string,zone:string):string{
  const iso=new Date(instant).toISOString();if(localDateValue(iso,zone)!==local.slice(0,16))throw Error('This local time does not exist in the selected timezone. Choose another time.');return iso;
 }
 export function formatEvent(value:string,zone:string,options:Intl.DateTimeFormatOptions={dateStyle:'long',timeStyle:'short'}){return value?new Intl.DateTimeFormat('en-PH',{...options,timeZone:zone}).format(new Date(value)):''}
+export function safeGiftUrl(value:string){try{const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password}catch{return false}}
 export function validateInvitation(c:Config,publish=false):string[]{
  const errors:string[]=[];
+ if((c.giftIdeas?.length??0)>20)errors.push('Use at most 20 wish-list items.');
+ for(const gift of c.giftIdeas??[]){if(!gift.name.trim())errors.push('Name each wish-list item or remove the empty item.');if(gift.url&&!safeGiftUrl(gift.url))errors.push('Use a valid HTTPS store link for each gift.');}
+
  if(!c.name.trim())errors.push('Add the child’s name.');
  try{new Intl.DateTimeFormat('en',{timeZone:c.timezone})}catch{errors.push('Choose a valid timezone.')}
  for(const key of ['date','deadline'] as const)if(c[key]&&!Number.isFinite(Date.parse(c[key])))errors.push('Choose a valid '+(key==='date'?'event date':'RSVP deadline')+'.');

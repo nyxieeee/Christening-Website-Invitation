@@ -10,7 +10,7 @@ Without environment variables the public invitation uses sample content and brow
 
 ## Connect the real service
 
-1. Create a Supabase project and apply `supabase/migrations/001_invitation.sql` using the SQL editor or Supabase CLI.
+1. Create a Supabase project and apply both SQL migrations in `supabase/migrations/` in numeric order using the SQL editor or Supabase CLI.
 2. Create the owner's Auth user, then insert its UUID into `admin_users` with role `owner` using the SQL editor. There is no public admin signup.
 3. Copy `.env.example` to `.env.local` and fill the Supabase URL and public anon/publishable key. Never put the service-role key in a Vite variable.
 4. Deploy `invitation-api` with the Supabase CLI. Set `ALLOWED_ORIGINS` to comma-separated frontend origins, and set a random `RATE_LIMIT_SALT`. The function uses the server-provided Supabase service-role secret.
@@ -24,7 +24,7 @@ Responsive envelope with skip/reduced-motion handling; illustrated botanical bac
 
 ## Remaining production work
 
-The broader v2.0 specification includes a CSV import wizard, drag-and-drop uploads with full metadata management, section reordering/visibility, font and section-spacing controls, role management UI, publish audit/rollback UI, realtime dashboard updates, indexed normalized guest search, and full browser/security/load testing. Those are not implemented in this initial build. Guest search currently scans records server-side and is appropriate only for the initial small event; add indexed search before increasing the guest list significantly. Reopen the studio to refresh externally changed guest responses.
+Remaining work from the broader v2.0 specification includes administrator account/role management UI, full media lifecycle management and drag-and-drop upload, indexed normalized guest search, and full browser/security/load testing. These are not part of this completion pass. CSV import, section ordering/visibility, typography/spacing controls, publication-history review, and automatic guest-response refresh are now implemented. Guest search currently scans records server-side and is appropriate only for the initial small event; add indexed search before increasing the guest list significantly. Guest responses refresh every 20 seconds while the studio is visible and when returning to the window.
 
 Name-only RSVP intentionally cannot verify identity. All real guest data must use the connected service, not demo browser storage. Confirm the API gateway supplies trusted client-IP headers before relying on IP throttling. Request-limit records should be periodically purged with a scheduled cleanup job.
 
@@ -32,7 +32,7 @@ Name-only RSVP intentionally cannot verify identity. All real guest data must us
 
 `public/florals.png` was created with the built-in ImageGen tool. Prompt: “Sparse delicate powder blue hydrangeas, white blossoms, muted sage eucalyptus along the lower corners and edges; luminous ivory watercolor paper; wide blank center; ethereal blue washes; premium christening stationery; no text, people, frames, or UI.”
 
-The default portrait is a fictional AI-generated sample in public/christening-portrait.png. Additional gallery samples are illustrative Unsplash photos bundled in public/photo-1.jpg and public/photo-2.jpg. They and must be replaced with the family's approved photos before launch. No event date or real family facts are assumed.
+The default portrait is a fictional AI-generated sample in public/christening-portrait.png. The gallery now uses a matching fictional sleeping portrait and close-up in public/gallery-sleeping.png and public/gallery-little-hand.png. These samples must be replaced with the family's approved photos before launch. No event date or real family facts are assumed.
 
 
 ## Dimensional reference redesign
@@ -47,3 +47,14 @@ Built-in ImageGen created these project assets:
 - public/christening-portrait.png — fictional smiling baby in ivory baptism clothing on a quilted blanket; illustrative only.
 
 Validation: npm run build; node check-startup.mjs against a running development server; node check-render.mjs for server-rendering smoke checks of the envelope, full invitation and tabbed admin editor. Browser screenshot/click verification remains unavailable because this session's browser host and native UI pipe are offline.
+
+
+## Completion pass
+
+The invitation now renders editable welcome copy, event/gallery/family-message headings, celebration title and dedication, RSVP button and confirmation/closed messages. Sections can be hidden or reordered; hiding RSVP removes its entry points. Fonts and section spacing are configurable. Empty galleries are omitted for guests. An unconfigured date has a deliberate waiting state rather than an empty countdown. Image descriptions and gallery captions are editable.
+
+The studio includes timezone-aware date/time pickers, a readiness checklist, real countdown values in the preview, version-history review and restore-as-draft, safer publication validation, and protection against newer edits being marked saved while an older save is running. Apply 002_completion.sql even if you previously applied 001: it adds atomic CSV import and synchronizes the saved draft with the published snapshot. The RSVP journey includes progress, per-person response buttons, review, a response receipt, and error recovery.
+
+CSV imports parse quoted values, map columns, preview family grouping, flag duplicates for explicit review, and commit through one administrator-only database transaction. No live Supabase calls or database migration execution were verified in this session because the project connection remains for the owner to configure.
+
+Built-in ImageGen produced public/gallery-sleeping.png and public/gallery-little-hand.png. Prompts requested a matching fictional baby in the existing ivory baptism outfit, sleeping on the same quilted blanket, and a close-up of his tiny hand on the outfit, using the original sample portrait as reference. These are coherent demonstration assets, not the family's real photographs.

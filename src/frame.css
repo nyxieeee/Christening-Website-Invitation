@@ -71,3 +71,11 @@
  .hero-portrait[data-frame] .portrait-bow{width:122px;height:65px;left:calc(50% - 61px);bottom:-10px;max-width:47%}
  .hero-portrait[data-frame='rounded']{--frame-radius:26px;--photo-radius:15px}
 }
+
+/* Gallery frames contain only the photograph and a fine border. */
+.invitation-experience .gallery-stage .gallery-grid>button,.invitation-experience .gallery-stage .gallery-tile{padding:0;background:transparent;border:1px solid #c5d7e6;box-shadow:none;line-height:0;overflow:hidden}
+.invitation-experience .gallery-stage .gallery-grid img{display:block;width:100%;height:auto;border-radius:0;transform:none}
+.invitation-experience .gallery-stage .gallery-grid button:hover img{transform:none}
+.studio-gallery-editor img.gallery-crop-preview{display:block;width:100%;height:auto;aspect-ratio:1.2/1;border:1px solid #c5d7e6;border-radius:10px;background:#edf3f6}
+.studio-gallery-editor input[type=range]{width:100%}
+@media(max-width:700px){.studio-gallery-editor img.gallery-crop-preview{aspect-ratio:1/1.2}}

@@ -1,3 +1,4 @@
+import {Gallery} from '../src/Gallery';
 import {GiftWishlist,GiftWishlistEditor} from '../src/GiftWishlist';
 import React from 'react';
 import assert from 'node:assert/strict';
@@ -97,3 +98,5 @@ const unsafe={...gifts,giftIdeas:[{...gifts.giftIdeas[0],url:'javascript:alert(1
 assert.match(render(<GiftWishlistEditor c={defaults} update={()=>{}}/>),/No gifts added yet/);
 assert.doesNotMatch(render(<Invitation c={{...gifts,sections:['details']}} preview/>),/Mom chosen gift/);
 console.log('PASS: empty wish list hidden, editable gift details, safe store links and section visibility.');
+
+const croppedGallery=render(<Gallery photos={['/test.jpg']} notes={{'/test.jpg':{alt:'Family portrait',caption:'Old caption',positionX:70,positionY:15,fit:'contain'}}} onSelect={()=>{}}/>);assert.doesNotMatch(croppedGallery,/gallery-caption|Old caption/);assert.match(croppedGallery,/object-position:70% 15%/);assert.match(croppedGallery,/object-fit:contain/);console.log('PASS: gallery has no caption box and applies saved photo positioning and fit.');

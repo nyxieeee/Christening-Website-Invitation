@@ -16,6 +16,7 @@ export function formatEvent(value:string,zone:string,options:Intl.DateTimeFormat
 export function safeGiftUrl(value:string){try{const url=new URL(value);return url.protocol==='https:'&&!url.username&&!url.password}catch{return false}}
 export function validateInvitation(c:Config,publish=false):string[]{
  const errors:string[]=[];
+ if(c.dressColors&&(c.dressColors.length>8||c.dressColors.some(item=>!/^#[0-9a-f]{6}$/i.test(item.color)||item.label.length>60)))errors.push('Choose up to 8 valid dress colors with names of at most 60 characters.');
  if((c.giftIdeas?.length??0)>20)errors.push('Use at most 20 wish-list items.');
  for(const gift of c.giftIdeas??[]){if(!gift.name.trim())errors.push('Name each wish-list item or remove the empty item.');if(gift.url&&!safeGiftUrl(gift.url))errors.push('Use a valid HTTPS store link for each gift.');}
 

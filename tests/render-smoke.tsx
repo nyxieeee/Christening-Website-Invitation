@@ -1,3 +1,4 @@
+import {DressColors,DressColorsEditor} from '../src/DressColors';
 import {Gallery} from '../src/Gallery';
 import {GiftWishlist,GiftWishlistEditor} from '../src/GiftWishlist';
 import React from 'react';
@@ -100,3 +101,8 @@ assert.doesNotMatch(render(<Invitation c={{...gifts,sections:['details']}} previ
 console.log('PASS: empty wish list hidden, editable gift details, safe store links and section visibility.');
 
 const croppedGallery=render(<Gallery photos={['/test.jpg']} notes={{'/test.jpg':{alt:'Family portrait',caption:'Old caption',positionX:70,positionY:15,fit:'contain'}}} onSelect={()=>{}}/>);assert.doesNotMatch(croppedGallery,/gallery-caption|Old caption/);assert.match(croppedGallery,/object-position:70% 15%/);assert.match(croppedGallery,/object-fit:contain/);console.log('PASS: gallery has no caption box and applies saved photo positioning and fit.');
+
+assert.equal(render(<DressColors c={{...defaults,dressColors:[]}}/>),'');
+const dressColors=render(<DressColors c={{...defaults,dressColors:[{color:'#123456',label:'Midnight blue'}]}}/>);assert.match(dressColors,/background-color:#123456/);assert.match(dressColors,/Midnight blue/);assert.doesNotMatch(dressColors,/Ivory/);
+assert.match(render(<DressColorsEditor c={defaults} update={()=>{}}/>),/Add color/);assert.ok(validateInvitation({...defaults,dressColors:[{color:'invalid',label:''}]}).some(error=>error.includes('dress colors')));
+console.log('PASS: custom dress colors render with labels, empty palette hides dots, and invalid colors are rejected.');

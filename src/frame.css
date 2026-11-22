@@ -81,3 +81,5 @@
 @media(max-width:700px){.studio-gallery-editor img.gallery-crop-preview{aspect-ratio:1/1.2}}
 
 .dress-colors-editor{min-width:0;margin:20px 0;padding:18px;border:1px solid #d7e3ed;border-radius:12px}.dress-colors-editor>.swatches{margin:18px 0;flex-wrap:wrap}.dress-colors-editor .swatches i{display:block;width:25px;height:25px;border-radius:50%;border:3px solid white;box-shadow:0 0 0 1px #d8d7cf}.dress-color-row{display:flex;align-items:end;gap:10px;margin:16px 0;flex-wrap:wrap}.dress-color-row label{display:flex;flex-direction:column;gap:7px;flex:1;min-width:90px}.dress-color-row label:first-child{flex:0 0 65px;min-width:65px}.dress-color-row input[type=color]{width:60px;height:40px;padding:3px;cursor:pointer}.dress-color-row .media-row{margin:0 0 3px}
+
+.invitation-experience .rsvp-section .rsvp-deadline{width:100%;max-width:none;margin:18px auto 0;text-align:center}
